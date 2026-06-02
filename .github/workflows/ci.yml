@@ -1,0 +1,197 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+# Least-privilege default. Jobs that need more escalate individually.
+permissions:
+  contents: read
+
+env:
+  TF_VERSION: "1.9.8"
+  TF_IN_AUTOMATION: "true"
+
+jobs:
+  # -------------------------------------------------------------------------
+  # Static checks — fast, parallel, no AWS needed
+  # -------------------------------------------------------------------------
+  fmt:
+    name: terraform fmt
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - run: terraform fmt -check -recursive
+
+  validate:
+    name: validate (${{ matrix.module }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - modules/kms
+          - modules/s3-baseline
+          - environments/demo
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: terraform init
+        run: terraform -chdir=${{ matrix.module }} init -backend=false
+      - name: terraform validate
+        run: terraform -chdir=${{ matrix.module }} validate
+
+  lint:
+    name: tflint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: latest
+      - run: tflint --init
+      - run: tflint --recursive
+
+  # -------------------------------------------------------------------------
+  # Security scanning — uploads to Security tab via SARIF
+  # -------------------------------------------------------------------------
+  checkov:
+    name: Checkov
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: modules/
+          framework: terraform
+          output_format: cli,sarif
+          output_file_path: console,checkov.sarif
+          soft_fail: true   # don't block PR on findings — managed via decision matrix
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: checkov.sarif
+          category: checkov
+
+  tfsec:
+    name: tfsec
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-sarif-action@v0.1.4
+        with:
+          sarif_file: tfsec.sarif
+      - name: Upload SARIF
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: tfsec.sarif
+          category: tfsec
+
+  # -------------------------------------------------------------------------
+  # Test suite — requires LocalStack as a service container
+  # -------------------------------------------------------------------------
+  test:
+    name: terraform test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      localstack:
+        image: localstack/localstack:3.8
+        ports:
+          - 4566:4566
+        env:
+          SERVICES: s3,kms,iam,sts
+          DEFAULT_REGION: eu-central-1
+          PERSISTENCE: "0"
+        options: >-
+          --health-cmd "curl -f http://localhost:4566/_localstack/health || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+      - name: Wait for LocalStack
+        run: |
+          for i in {1..30}; do
+            if curl -fs http://localhost:4566/_localstack/health > /dev/null; then
+              echo "LocalStack is ready"; exit 0
+            fi
+            sleep 2
+          done
+          echo "LocalStack did not become ready"; exit 1
+      - name: KMS module tests
+        working-directory: modules/kms
+        run: |
+          terraform init
+          terraform test
+      - name: S3 baseline module tests
+        working-directory: modules/s3-baseline
+        run: |
+          terraform init
+          terraform test
+      - name: Integration tests
+        working-directory: tests
+        run: |
+          terraform init
+          terraform test
+
+  # -------------------------------------------------------------------------
+  # Cost delta — PR-only, requires INFRACOST_API_KEY secret
+  # -------------------------------------------------------------------------
+  infracost:
+    name: Infracost
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write
+    env:
+      INFRACOST_API_KEY: ${{ secrets.INFRACOST_API_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+      - uses: infracost/actions/setup@v3
+        with:
+          api-key: ${{ env.INFRACOST_API_KEY }}
+      - name: Baseline cost (main)
+        run: infracost breakdown --path=environments/demo --format=json --out-file=/tmp/baseline.json
+      - uses: actions/checkout@v4
+        with:
+          clean: false
+      - name: Diff
+        run: infracost diff --path=environments/demo --compare-to=/tmp/baseline.json --format=json --out-file=/tmp/diff.json
+      - name: Comment on PR
+        run: |
+          infracost comment github --path=/tmp/diff.json \
+            --repo=$GITHUB_REPOSITORY \
+            --github-token=${{ secrets.GITHUB_TOKEN }} \
+            --pull-request=${{ github.event.pull_request.number }} \
+            --behavior=update

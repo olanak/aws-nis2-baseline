@@ -1,0 +1,28 @@
+name: terraform-docs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'modules/**/*.tf'
+
+permissions:
+  contents: write   # required: this job commits back to the repo
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Generate module READMEs
+        uses: terraform-docs/gh-actions@v1
+        with:
+          working-dir: modules/kms,modules/s3-baseline
+          output-file: README.md
+          output-method: inject
+          git-push: "true"
+          git-commit-message: "docs: auto-update module READMEs [skip ci]"
