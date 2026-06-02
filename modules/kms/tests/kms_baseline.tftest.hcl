@@ -76,7 +76,7 @@ run "rejects_invalid_deletion_window" {
   command = plan
 
   variables {
-    deletion_window_in_days = 3  # below minimum (7)
+    deletion_window_in_days = 3 # below minimum (7)
   }
 
   expect_failures = [

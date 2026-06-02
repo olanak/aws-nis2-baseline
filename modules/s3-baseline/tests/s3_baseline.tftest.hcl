@@ -56,24 +56,24 @@ run "encryption_uses_sse_kms_with_provided_cmk" {
 
   assert {
     condition = alltrue([
-        for r in aws_s3_bucket_server_side_encryption_configuration.this.rule : 
-        r.apply_server_side_encryption_by_default[0].sse_algorithm == "aws:kms"
+      for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
+      r.apply_server_side_encryption_by_default[0].sse_algorithm == "aws:kms"
     ])
     error_message = "SSE algorithm must be aws:kms (NIS2 Art.21(2)(h) — org-controlled keys)."
   }
 
   assert {
-    condition     = alltrue([
-        for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
-        r.apply_server_side_encryption_by_default[0].kms_master_key_id == var.kms_key_arn
+    condition = alltrue([
+      for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
+      r.apply_server_side_encryption_by_default[0].kms_master_key_id == var.kms_key_arn
     ])
     error_message = "Encryption must use the CMK passed in by the caller."
   }
 
   assert {
-    condition     = alltrue([ 
-        for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
-        r.bucket_key_enabled == true
+    condition = alltrue([
+      for r in aws_s3_bucket_server_side_encryption_configuration.this.rule :
+      r.bucket_key_enabled == true
     ])
     error_message = "bucket_key_enabled must be true to reduce KMS API calls + cost."
   }
