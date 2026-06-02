@@ -28,7 +28,16 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
-      - run: terraform fmt -check -recursive
+      - name: Check .tf files
+        run: terraform fmt -check -recursive
+      - name: Check .tftest.hcl files
+        run: |
+          MISFORMATTED=$(find . -name "*.tftest.hcl" -exec terraform fmt -check {} \; 2>&1 | grep -v "^$" || true)
+          if [ -n "$MISFORMATTED" ]; then
+            echo "Unformatted test files:"
+            echo "$MISFORMATTED"
+            exit 1
+          fi
 
   validate:
     name: validate (${{ matrix.module }})
