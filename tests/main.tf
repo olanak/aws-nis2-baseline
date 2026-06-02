@@ -30,6 +30,10 @@ provider "aws" {
   }
 }
 
+# tfsec:ignore:aws-s3-enable-bucket-logging defsec flags this test stub as
+# missing access logging. It is intentional: this file exists only as a wiring
+# stub for `terraform init` to discover the integration test module. It does
+# not represent deployed infrastructure.
 # Register the demo composition so `terraform init` downloads/prepares it.
 # Actual test logic + assertions live in integration.tftest.hcl.
 module "demo" {
