@@ -1,4 +1,4 @@
-# aws-nis2-baseline
+# Aws-nis2-baseline
 
 [![CI](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml/badge.svg)](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml)
 [![terraform-docs](https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml/badge.svg)](https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml)
