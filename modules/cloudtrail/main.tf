@@ -80,7 +80,8 @@ resource "aws_iam_role_policy" "cloudtrail_to_cwl" {
 #   enable_log_file_validation         -> SHA-256 + RSA tamper detection
 #   kms_key_id                          -> envelope encryption with our CMK
 #   cloud_watch_logs_group_arn          -> real-time stream for Week 4 alerting
-# ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------#
+# checkov:skip=CKV_AWS_252:SNS notification for trail events is deferred to the Detection module in Week 4, where EventBridge → SNS will handle high-severity finding routing for all log sources uniformly.
 resource "aws_cloudtrail" "this" {
   name           = var.trail_name
   s3_bucket_name = var.s3_bucket_name

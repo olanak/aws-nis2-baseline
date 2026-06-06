@@ -32,7 +32,7 @@ variable "kms_key_arn" {
 variable "cloudwatch_logs_retention_days" {
   description = "Retention period for the CloudWatch Log Group. NIS2 Art. 23 requires retention to support 1-month incident reporting."
   type        = number
-  default     = 90
+  default     = 365
 
   validation {
     condition     = contains([1, 7, 14, 30, 60, 90, 120, 180, 365, 731, 1827, 3653], var.cloudwatch_logs_retention_days)
