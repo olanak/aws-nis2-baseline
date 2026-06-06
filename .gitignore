@@ -32,3 +32,4 @@ Thumbs.db
 *.key
 .env
 .env.*
+LOCALSTACK_AUTH_TOKEN

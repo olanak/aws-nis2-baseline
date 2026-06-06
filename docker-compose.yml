@@ -1,11 +1,11 @@
 services:
   localstack:
     container_name: nis2-localstack
-    image: localstack/localstack:3.8
+    image: localstack/localstack-pro:4.4.0   # ← was localstack/localstack:3.8
     ports:
       - "4566:4566"
     environment:
-      - SERVICES=s3,kms,iam,sts,cloudtrail,config,logs,ec2,events,sns,guardduty
+      - LOCALSTACK_AUTH_TOKEN=${LOCALSTACK_AUTH_TOKEN}   # ← new
       - DEFAULT_REGION=eu-central-1
       - DEBUG=0
       - PERSISTENCE=1

@@ -109,6 +109,40 @@ run "bucket_policy_denies_insecure_transport" {
 }
 
 # ---------------------------------------------------------------------------
+# Run: caller-provided statements merge correctly with baseline.
+# ---------------------------------------------------------------------------
+run "additional_policy_statements_merge_with_baseline" {
+  command = apply
+
+  variables {
+    additional_policy_statements = [
+      {
+        Sid       = "TestAdditionalStatement"
+        Effect    = "Allow"
+        Principal = { Service = "test-service.amazonaws.com" }
+        Action    = "s3:PutObject"
+        Resource  = "arn:aws:s3:::tf-test-bucket-baseline/test/*"
+      }
+    ]
+  }
+
+  assert {
+    condition     = strcontains(aws_s3_bucket_policy.this.policy, "DenyInsecureTransport")
+    error_message = "Baseline DenyInsecureTransport must persist when additional statements are added."
+  }
+
+  assert {
+    condition     = strcontains(aws_s3_bucket_policy.this.policy, "DenyUnencryptedObjectUploads")
+    error_message = "Baseline DenyUnencryptedObjectUploads must persist."
+  }
+
+  assert {
+    condition     = strcontains(aws_s3_bucket_policy.this.policy, "TestAdditionalStatement")
+    error_message = "Caller-provided statement must be merged into the policy."
+  }
+}
+
+# ---------------------------------------------------------------------------
 # Run 5: bucket policy enforces SSE-KMS on uploads.
 # ---------------------------------------------------------------------------
 run "bucket_policy_enforces_sse_kms_uploads" {

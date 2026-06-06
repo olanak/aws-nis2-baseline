@@ -13,7 +13,7 @@ test-s3:
 	cd modules/s3-baseline && terraform test
 
 test-integration:
-	cd tests && terraform test
+	cd tests && terraform init -backend=false && terraform test
 
 test: test-kms test-s3 test-integration
 	@echo "✅ All test suites passed."

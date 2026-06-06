@@ -21,10 +21,12 @@ provider "aws" {
   s3_use_path_style           = true
 
   endpoints {
-    kms = "http://localhost:4566"
-    sts = "http://localhost:4566"
-    iam = "http://localhost:4566"
-    s3  = "http://localhost:4566"
+    kms        = "http://localhost:4566"
+    sts        = "http://localhost:4566"
+    iam        = "http://localhost:4566"
+    s3         = "http://s3.localhost.localstack.cloud:4566"
+    cloudtrail = "http://localhost:4566"
+    logs       = "http://localhost:4566"
   }
 }
 
@@ -41,12 +43,44 @@ module "kms_s3_baseline" {
   }
 }
 
+
+# Pass CloudTrail-required statements into the s3-baseline module's bucket policy.
+# This is the clean dependency-injection pattern: the bucket module owns its
+# baseline security guarantees; the caller adds what's specific to its use.
+locals {
+  cloudtrail_bucket_policy_additions = [
+    {
+      Sid       = "AWSCloudTrailAclCheck"
+      Effect    = "Allow"
+      Principal = { Service = "cloudtrail.amazonaws.com" }
+      Action    = "s3:GetBucketAcl"
+      Resource  = module.s3_baseline_logs.bucket_arn
+    },
+    {
+      Sid       = "AWSCloudTrailWrite"
+      Effect    = "Allow"
+      Principal = { Service = "cloudtrail.amazonaws.com" }
+      Action    = "s3:PutObject"
+      Resource  = "${module.s3_baseline_logs.bucket_arn}/cloudtrail/AWSLogs/*"
+      Condition = {
+        StringEquals = {
+          "s3:x-amz-acl" = "bucket-owner-full-control"
+        }
+      }
+    }
+  ]
+}
+
 module "s3_baseline_logs" {
   source = "../../modules/s3-baseline"
 
   bucket_name   = "nis2-demo-logs-bucket"
   kms_key_arn   = module.kms_s3_baseline.key_arn
-  force_destroy = true # demo only — destroy with terraform destroy possible
+  force_destroy = true
+
+  # Additional statements injected for CloudTrail compatibility.
+  # The module's baseline (TLS-only + SSE enforcement) is preserved.
+  additional_policy_statements = local.cloudtrail_bucket_policy_additions
 
   tags = {
     Project            = "aws-nis2-baseline"
@@ -54,6 +88,31 @@ module "s3_baseline_logs" {
     DataClassification = "internal"
     Purpose            = "log-storage-demo"
   }
+}
+
+module "cloudtrail_demo" {
+  source = "../../modules/cloudtrail"
+
+  trail_name     = "nis2-demo-trail"
+  s3_bucket_name = module.s3_baseline_logs.bucket_id
+  s3_key_prefix  = "cloudtrail/"
+  kms_key_arn    = module.kms_s3_baseline.key_arn
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "audit-log-trail"
+  }
+}
+
+
+output "trail_arn" {
+  value = module.cloudtrail_demo.trail_arn
+}
+
+output "trail_log_group_arn" {
+  value = module.cloudtrail_demo.log_group_arn
 }
 
 output "logs_bucket_arn" {

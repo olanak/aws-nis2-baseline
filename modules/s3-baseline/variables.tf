@@ -53,3 +53,15 @@ variable "lifecycle_enabled" {
   type        = bool
   default     = false
 }
+
+variable "additional_policy_statements" {
+  description = <<-EOT
+    Additional IAM policy statements to merge into the bucket policy.
+    Each statement is a fully-formed object (Sid, Effect, Principal, Action,
+    Resource, optional Condition). The module's baseline statements
+    (DenyInsecureTransport, DenyUnencryptedObjectUploads) are always included
+    and cannot be removed. Callers can only ADD statements.
+  EOT
+  type        = any
+  default     = []
+}
