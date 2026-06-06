@@ -20,4 +20,14 @@ run "kms_and_s3_compose_correctly" {
     condition     = can(regex("^arn:aws:s3:::nis2-demo-logs-bucket$", output.logs_bucket_arn))
     error_message = "Logs bucket ARN must follow expected pattern."
   }
+
+  assert {
+    condition     = can(regex("^arn:aws:cloudtrail:eu-central-1:", output.trail_arn))
+    error_message = "Trail ARN must be in eu-central-1."
+  }
+
+  assert {
+    condition     = can(regex("^arn:aws:logs:eu-central-1:", output.trail_log_group_arn))
+    error_message = "CloudTrail log group ARN must be in eu-central-1."
+  }
 }

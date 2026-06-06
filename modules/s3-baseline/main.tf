@@ -62,53 +62,66 @@ resource "aws_s3_bucket_versioning" "this" {
 }
 
 # ---------------------------------------------------------------------------
-# TLS-only bucket policy. Denies any request that isn't over HTTPS.
-# Plus: denies unencrypted-at-rest uploads (forces SSE-KMS).
-# NIS2 Art. 21(2)(h) — cryptography in transit AND at rest.
-# ISO 27001:2022 A.8.21 — security of network services, A.8.24.
+# Bucket policy: baseline (TLS-only + SSE enforcement) PLUS any additional
+# statements provided by the caller.
+#
+# Baseline statements are always present. Callers compose by adding their own
+# (e.g. CloudTrail delivery permissions) — they cannot remove the baseline.
+# This is policy-as-code defense in depth: the module guarantees a minimum
+# bar regardless of what callers do.
 # ---------------------------------------------------------------------------
+locals {
+  baseline_policy_statements = [
+    {
+      Sid       = "DenyInsecureTransport"
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:*"
+      Resource = [
+        aws_s3_bucket.this.arn,
+        "${aws_s3_bucket.this.arn}/*"
+      ]
+      Condition = {
+        Bool = {
+          "aws:SecureTransport" = "false"
+        }
+      }
+    },
+    {
+      Sid       = "DenyUnencryptedObjectUploads"
+      Effect    = "Deny"
+      Principal = "*"
+      Action    = "s3:PutObject"
+      Resource  = "${aws_s3_bucket.this.arn}/*"
+      Condition = {
+        StringNotEquals = {
+          "s3:x-amz-server-side-encryption" = "aws:kms"
+        }
+      }
+    }
+  ]
+
+  all_policy_statements = concat(
+    local.baseline_policy_statements,
+    var.additional_policy_statements
+  )
+}
+
 resource "aws_s3_bucket_policy" "this" {
   bucket = aws_s3_bucket.this.id
 
   policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "DenyInsecureTransport"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:*"
-        Resource = [
-          aws_s3_bucket.this.arn,
-          "${aws_s3_bucket.this.arn}/*"
-        ]
-        Condition = {
-          Bool = {
-            "aws:SecureTransport" = "false"
-          }
-        }
-      },
-      {
-        Sid       = "DenyUnencryptedObjectUploads"
-        Effect    = "Deny"
-        Principal = "*"
-        Action    = "s3:PutObject"
-        Resource  = "${aws_s3_bucket.this.arn}/*"
-        Condition = {
-          StringNotEquals = {
-            "s3:x-amz-server-side-encryption" = "aws:kms"
-          }
-        }
-      }
-    ]
+    Version   = "2012-10-17"
+    Statement = local.all_policy_statements
   })
-
-
 
   # Must run AFTER the public access block, or AWS rejects the policy
   # because the policy itself could grant public access (we're not, but AWS checks).
   depends_on = [aws_s3_bucket_public_access_block.this]
 }
+
+
+
 
 # ---------------------------------------------------------------------------
 # Server access logging.

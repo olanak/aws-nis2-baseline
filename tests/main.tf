@@ -28,6 +28,8 @@ provider "aws" {
     iam = "http://localhost:4566"
     s3  = "http://s3.localhost.localstack.cloud:4566"
   }
+
+
 }
 
 # tfsec:ignore:aws-s3-enable-bucket-logging defsec flags this test stub as
@@ -50,4 +52,12 @@ output "logs_bucket_arn" {
 
 output "logs_bucket_id" {
   value = module.demo.logs_bucket_id
+}
+
+output "trail_arn" {
+  value = module.demo.trail_arn
+}
+
+output "trail_log_group_arn" {
+  value = module.demo.trail_log_group_arn
 }
