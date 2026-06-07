@@ -7,7 +7,8 @@ on:
       - 'modules/**/*.tf'
 
 permissions:
-  contents: write   # required: this job commits back to the repo
+  contents: write
+  pull-requests: write
 
 jobs:
   docs:
@@ -15,14 +16,25 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref }}
-          token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Generate module READMEs
         uses: terraform-docs/gh-actions@v1
         with:
-          working-dir: modules/kms,modules/s3-baseline
+          working-dir: modules/kms,modules/s3-baseline,modules/cloudtrail
           output-file: README.md
           output-method: inject
-          git-push: "true"
-          git-commit-message: "docs: auto-update module READMEs [skip ci]"
+          git-push: "false"   # we'll PR instead
+
+      - name: Open PR with updated module docs
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "docs: auto-update module READMEs"
+          title: "docs: auto-update module READMEs"
+          body: |
+            Automated update of module READMEs by terraform-docs.
+
+            Reviewed by CI. Safe to merge if all checks pass.
+          branch: bot/terraform-docs
+          delete-branch: true
+          add-paths: modules/**/README.mdubu
