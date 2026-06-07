@@ -49,7 +49,9 @@ jobs:
         module:
           - modules/kms
           - modules/s3-baseline
+          - modules/cloudtrail
           - environments/demo
+          
     steps:
       - uses: actions/checkout@v4
       - uses: hashicorp/setup-terraform@v3
@@ -161,6 +163,11 @@ jobs:
           terraform test
       - name: S3 baseline module tests
         working-directory: modules/s3-baseline
+        run: |
+          terraform init
+          terraform test
+      - name: CloudTrail module tests
+        working-directory: modules/cloudtrail
         run: |
           terraform init
           terraform test
