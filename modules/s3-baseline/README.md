@@ -46,6 +46,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_additional_policy_statements"></a> [additional\_policy\_statements](#input\_additional\_policy\_statements) | Additional IAM policy statements to merge into the bucket policy.<br/>Each statement is a fully-formed object (Sid, Effect, Principal, Action,<br/>Resource, optional Condition). The module's baseline statements<br/>(DenyInsecureTransport, DenyUnencryptedObjectUploads) are always included<br/>and cannot be removed. Callers can only ADD statements. | `any` | `[]` | no |
 | <a name="input_bucket_name"></a> [bucket\_name](#input\_bucket\_name) | Globally-unique S3 bucket name. Lowercase, 3-63 chars, no underscores. | `string` | n/a | yes |
 | <a name="input_force_destroy"></a> [force\_destroy](#input\_force\_destroy) | Allow Terraform to destroy a non-empty bucket. KEEP FALSE in production. True only for ephemeral demos. | `bool` | `false` | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | ARN of the KMS CMK to use for SSE-KMS encryption. Pass from the kms module's output. | `string` | n/a | yes |
