@@ -18,6 +18,7 @@ resource "aws_cloudwatch_log_group" "trail" {
     }
   )
 }
+# Audit trail of changes is captured in git history and module README.
 
 # ---------------------------------------------------------------------------
 # IAM role that CloudTrail assumes to write to CloudWatch Logs.
