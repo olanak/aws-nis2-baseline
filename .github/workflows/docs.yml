@@ -21,7 +21,9 @@ jobs:
       - name: Generate module READMEs
         uses: terraform-docs/gh-actions@v1
         with:
-          working-dir: modules/kms,modules/s3-baseline,modules/cloudtrail
+          find-dir: modules/
+          recursive: "true"
+          recursive-path: .
           output-file: README.md
           output-method: inject
           git-push: "false"
