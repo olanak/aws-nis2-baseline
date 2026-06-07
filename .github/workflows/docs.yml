@@ -23,7 +23,7 @@ jobs:
           working-dir: modules/kms,modules/s3-baseline,modules/cloudtrail
           output-file: README.md
           output-method: inject
-          git-push: "false"   # we'll PR instead
+          git-push: "false"   # I will PR instead
 
       - name: Open PR with updated module docs
         uses: peter-evans/create-pull-request@v6
@@ -37,4 +37,4 @@ jobs:
             Reviewed by CI. Safe to merge if all checks pass.
           branch: bot/terraform-docs
           delete-branch: true
-          add-paths: modules/**/README.mdubu
+          add-paths: modules/**/README.md
