@@ -32,12 +32,20 @@ provider "aws" {
 
 }
 
-# tfsec:ignore:aws-s3-enable-bucket-logging defsec flags this test stub as
-# missing access logging. It is intentional: this file exists only as a wiring
-# stub for `terraform init` to discover the integration test module. It does
-# not represent deployed infrastructure.
 # Register the demo composition so `terraform init` downloads/prepares it.
 # Actual test logic + assertions live in integration.tftest.hcl.
+#
+# Suppressions:
+#   - aws-s3-enable-bucket-logging: This file is a wiring stub for
+#     `terraform init` to discover the integration test module. It does
+#     not represent deployed infrastructure.
+#   - aws-iam-no-policy-wildcards: Transitively flags wildcards from the
+#     demo composition. Reviewed — all wildcards are in Deny statements
+#     (s3-baseline bucket policy) or KMS key policies (where Resource = "*"
+#     refers to the policy's own key — AWS documented pattern). Not a real
+#     least-privilege violation.
+# tfsec:ignore:aws-s3-enable-bucket-logging
+# tfsec:ignore:aws-iam-no-policy-wildcards
 module "demo" {
   source = "../environments/demo"
 }
