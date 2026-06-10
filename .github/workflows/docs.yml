@@ -34,7 +34,7 @@ jobs:
       - name: Open PR with updated module docs
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DOCS_PAT }}
           commit-message: "docs: auto-update module READMEs"
           title: "docs: auto-update module READMEs"
           body: |
