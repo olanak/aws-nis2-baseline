@@ -51,6 +51,7 @@ jobs:
           - modules/s3-baseline
           - modules/cloudtrail
           - environments/demo
+          - modules/aws-config
           
     steps:
       - uses: actions/checkout@v4
@@ -168,6 +169,11 @@ jobs:
           terraform test
       - name: CloudTrail module tests
         working-directory: modules/cloudtrail
+        run: |
+          terraform init
+          terraform test
+      - name: AWS Config module tests
+        working-directory: modules/aws-config
         run: |
           terraform init
           terraform test

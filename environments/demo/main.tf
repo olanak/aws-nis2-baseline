@@ -27,6 +27,7 @@ provider "aws" {
     s3         = "http://s3.localhost.localstack.cloud:4566"
     cloudtrail = "http://localhost:4566"
     logs       = "http://localhost:4566"
+    config     = "http://localhost:4566"
   }
 }
 
@@ -69,6 +70,27 @@ locals {
       }
     }
   ]
+  config_bucket_policy_additions = [
+    {
+      Sid       = "AWSConfigBucketPermissionsCheck"
+      Effect    = "Allow"
+      Principal = { Service = "config.amazonaws.com" }
+      Action    = "s3:GetBucketAcl"
+      Resource  = module.s3_baseline_logs.bucket_arn
+    },
+    {
+      Sid       = "AWSConfigBucketDelivery"
+      Effect    = "Allow"
+      Principal = { Service = "config.amazonaws.com" }
+      Action    = "s3:PutObject"
+      Resource  = "${module.s3_baseline_logs.bucket_arn}/AWSLogs/*"
+      Condition = {
+        StringEquals = {
+          "s3:x-amz-acl" = "bucket-owner-full-control"
+        }
+      }
+    }
+  ]
 }
 
 module "s3_baseline_logs" {
@@ -80,7 +102,10 @@ module "s3_baseline_logs" {
 
   # Additional statements injected for CloudTrail compatibility.
   # The module's baseline (TLS-only + SSE enforcement) is preserved.
-  additional_policy_statements = local.cloudtrail_bucket_policy_additions
+  additional_policy_statements = concat(
+    local.cloudtrail_bucket_policy_additions,
+    local.config_bucket_policy_additions
+  )
 
   tags = {
     Project            = "aws-nis2-baseline"
@@ -104,6 +129,32 @@ module "cloudtrail_demo" {
     DataClassification = "internal"
     Purpose            = "audit-log-trail"
   }
+}
+
+module "aws_config_demo" {
+  source = "../../modules/aws-config"
+
+  recorder_name         = "nis2-demo-recorder"
+  delivery_channel_name = "nis2-demo-delivery"
+  role_name             = "nis2-demo-config-role"
+  s3_bucket_name        = module.s3_baseline_logs.bucket_id
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "continuous-compliance"
+  }
+
+  depends_on = [module.s3_baseline_logs]
+}
+
+output "config_recorder_name" {
+  value = module.aws_config_demo.recorder_name
+}
+
+output "config_rule_names" {
+  value = module.aws_config_demo.rule_names
 }
 
 
