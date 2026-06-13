@@ -60,6 +60,7 @@ resource "aws_subnet" "private" {
 # NAT Gateway (private subnet egress)
 # ---------------------------------------------------------------------------
 resource "aws_eip" "nat" {
+  # checkov:skip=CKV2_AWS_19:This EIP is attached to a NAT gateway (aws_nat_gateway.this), not an EC2 instance. NAT gateways consume an EIP by design; the check does not recognize this valid attachment.
   count  = var.enable_nat_gateway ? 1 : 0
   domain = "vpc"
   tags   = merge(local.base_tags, { Name = "${var.vpc_name}-nat-eip" })
@@ -154,6 +155,18 @@ data "aws_iam_policy_document" "flow_logs_permissions" {
     ]
     resources = ["${aws_cloudwatch_log_group.flow_logs.arn}:*"]
   }
+}
+
+# Lock the auto-created default security group to deny-all.
+# NIS2 Art.21(2)(b) network security; ISO 27001 A.8.22.
+resource "aws_default_security_group" "this" {
+  vpc_id = aws_vpc.this.id
+
+  # No ingress, no egress blocks = deny all traffic.
+
+  tags = merge(local.base_tags, {
+    Name = "${var.vpc_name}-default-sg-locked"
+  })
 }
 
 resource "aws_iam_role_policy" "flow_logs" {
