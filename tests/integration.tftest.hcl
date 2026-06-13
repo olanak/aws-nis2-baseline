@@ -30,4 +30,23 @@ run "kms_and_s3_compose_correctly" {
     condition     = can(regex("^arn:aws:logs:eu-central-1:", output.trail_log_group_arn))
     error_message = "CloudTrail log group ARN must be in eu-central-1."
   }
+  assert {
+    condition     = output.config_recorder_name == "nis2-demo-recorder"
+    error_message = "Config recorder must be present in the composition."
+  }
+
+  assert {
+    condition     = length(output.config_rule_names) == 6
+    error_message = "All 6 managed Config rules must be deployed in the composition."
+  }
+
+  assert {
+    condition     = can(regex("^vpc-", output.vpc_id))
+    error_message = "VPC must be created with a valid vpc- ID."
+  }
+
+  assert {
+    condition     = can(regex("^arn:aws:logs:eu-central-1:.*:/aws/vpc/", output.vpc_flow_log_group_arn))
+    error_message = "VPC flow-log group ARN must be in eu-central-1 under /aws/vpc/."
+  }
 }
