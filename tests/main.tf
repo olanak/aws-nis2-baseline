@@ -69,3 +69,18 @@ output "trail_arn" {
 output "trail_log_group_arn" {
   value = module.demo.trail_log_group_arn
 }
+output "config_recorder_name" {
+  value = module.demo.config_recorder_name
+}
+
+output "config_rule_names" {
+  value = module.demo.config_rule_names
+}
+
+output "vpc_id" {
+  value = module.demo.vpc_id
+}
+
+output "vpc_flow_log_group_arn" {
+  value = module.demo.vpc_flow_log_group_arn
+}
