@@ -28,6 +28,7 @@ provider "aws" {
     cloudtrail = "http://localhost:4566"
     logs       = "http://localhost:4566"
     config     = "http://localhost:4566"
+    ec2        = "http://localhost:4566"
   }
 }
 
@@ -149,6 +150,29 @@ module "aws_config_demo" {
   depends_on = [module.s3_baseline_logs]
 }
 
+module "vpc_demo" {
+  source = "../../modules/vpc"
+
+  vpc_name    = "nis2-demo-vpc"
+  kms_key_arn = module.kms_s3_baseline.key_arn
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "network-audit"
+  }
+}
+
+
+output "vpc_id" {
+  value = module.vpc_demo.vpc_id
+}
+
+output "vpc_flow_log_group_arn" {
+  value = module.vpc_demo.flow_log_group_arn
+}
+
 output "config_recorder_name" {
   value = module.aws_config_demo.recorder_name
 }
@@ -156,7 +180,6 @@ output "config_recorder_name" {
 output "config_rule_names" {
   value = module.aws_config_demo.rule_names
 }
-
 
 output "trail_arn" {
   value = module.cloudtrail_demo.trail_arn

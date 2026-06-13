@@ -1,0 +1,59 @@
+{
+    "NatGateways": [
+        {
+            "CreateTime": "2026-06-13T08:51:00.910000+00:00",
+            "NatGatewayAddresses": [
+                {
+                    "AllocationId": "eipalloc-2e508f780bb0ca60e",
+                    "NetworkInterfaceId": "eni-476dad7f2da7b2414",
+                    "PrivateIp": "10.145.209.119",
+                    "PublicIp": "127.43.68.151",
+                    "AssociationId": "eipassoc-31908dc471c925547"
+                }
+            ],
+            "NatGatewayId": "nat-d231f6ec20a35af50",
+            "State": "available",
+            "SubnetId": "subnet-74dc253516c91f867",
+            "VpcId": "vpc-afcdb2aa72287493c",
+            "Tags": [
+                {
+                    "Key": "Project",
+                    "Value": "aws-nis2-baseline"
+                },
+                {
+                    "Key": "Environment",
+                    "Value": "demo"
+                },
+                {
+                    "Key": "DataClassification",
+                    "Value": "internal"
+                },
+                {
+                    "Key": "Purpose",
+                    "Value": "network-audit"
+                },
+                {
+                    "Key": "ManagedBy",
+                    "Value": "Terraform"
+                },
+                {
+                    "Key": "Name",
+                    "Value": "nis2-demo-vpc-nat"
+                },
+                {
+                    "Key": "ISO27001Controls",
+                    "Value": "A8.16_A8.22"
+                },
+                {
+                    "Key": "NIS2Controls",
+                    "Value": "Art21-2-b"
+                },
+                {
+                    "Key": "Module",
+                    "Value": "modules/vpc"
+                }
+            ],
+            "ConnectivityType": "public"
+        }
+    ]
+}
