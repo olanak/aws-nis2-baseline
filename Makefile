@@ -1,5 +1,4 @@
-.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc up down clean-demo
-
+.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations up down clean-demo
 up:
 	docker compose up -d
 

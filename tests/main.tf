@@ -96,3 +96,4 @@ output "organization_root_id" {
 output "organization_ou_ids" {
   value = module.demo.organization_ou_ids
 }
+
