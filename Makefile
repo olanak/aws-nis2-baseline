@@ -1,5 +1,4 @@
-.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc up down clean-demo
-
+.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations up down clean-demo
 up:
 	docker compose up -d
 
@@ -24,8 +23,11 @@ test-config:
 test-vpc:
 	cd modules/vpc && terraform test
 
+test-organizations:
+	cd modules/organizations && terraform test
+
 test-integration: clean-demo
 	cd tests && terraform init -backend=false && terraform test
 
-test: test-kms test-s3 test-cloudtrail test-config test-vpc test-integration
+test: test-kms test-s3 test-cloudtrail test-config test-vpc test-organizations test-integration
 	@echo "✅ All test suites passed."

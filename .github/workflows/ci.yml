@@ -52,6 +52,7 @@ jobs:
           - modules/cloudtrail
           - modules/aws-config
           - modules/vpc
+          - modules/organizations
           - environments/demo
           
           
@@ -181,6 +182,11 @@ jobs:
           terraform test
       - name: VPC module tests
         working-directory: modules/vpc
+        run: |
+          terraform init
+          terraform test
+      - name: Organizations module tests
+        working-directory: modules/organizations
         run: |
           terraform init
           terraform test
