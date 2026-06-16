@@ -54,6 +54,7 @@ jobs:
           - modules/vpc
           - modules/organizations
           - modules/scp
+          - modules/identity-center
           - environments/demo
           
           
@@ -196,6 +197,11 @@ jobs:
         run: |
           terraform init
           terraform test
+      - name: Identity Center module tests
+        working-directory: modules/identity-center
+        run: |
+          terraform init
+          terraform test  
       - name: Integration tests
         working-directory: tests
         run: |
