@@ -53,6 +53,7 @@ jobs:
           - modules/aws-config
           - modules/vpc
           - modules/organizations
+          - modules/scp
           - environments/demo
           
           
@@ -187,6 +188,11 @@ jobs:
           terraform test
       - name: Organizations module tests
         working-directory: modules/organizations
+        run: |
+          terraform init
+          terraform test
+      - name: SCP module tests
+        working-directory: modules/scp
         run: |
           terraform init
           terraform test

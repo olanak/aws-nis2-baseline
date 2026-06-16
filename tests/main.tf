@@ -97,3 +97,10 @@ output "organization_ou_ids" {
   value = module.demo.organization_ou_ids
 }
 
+output "scp_policy_ids" {
+  value = module.demo.scp_policy_ids
+}
+
+output "scp_attachment_count" {
+  value = module.demo.scp_attachment_count
+}

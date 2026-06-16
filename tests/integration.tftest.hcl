@@ -63,4 +63,13 @@ run "kms_and_s3_compose_correctly" {
     condition     = length(output.organization_ou_ids) == 3
     error_message = "All 3 OUs (Workloads, Security, Sandbox) must be present in the composition."
   }
+  assert {
+    condition     = length(output.scp_policy_ids) == 3
+    error_message = "All 3 SCPs (deny_root, region_lock, protect_logging) must be in the composition."
+  }
+
+  assert {
+    condition     = output.scp_attachment_count == 9
+    error_message = "Expected 9 SCP attachments (3 policies x 3 OUs)."
+  }
 }
