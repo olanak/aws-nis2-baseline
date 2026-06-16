@@ -178,6 +178,27 @@ module "organizations" {
   }
 }
 
+module "scp" {
+  source = "../../modules/scp"
+  #target_ids = values(module.organizations.ou_ids)
+  targets = module.organizations.ou_ids
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "identity-guardrails"
+  }
+}
+
+output "scp_policy_ids" {
+  value = module.scp.policy_ids
+}
+
+output "scp_attachment_count" {
+  value = module.scp.attachment_count
+}
+
 output "organization_id" {
   value = module.organizations.organization_id
 }
