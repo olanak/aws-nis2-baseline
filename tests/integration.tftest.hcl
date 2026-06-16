@@ -49,4 +49,18 @@ run "kms_and_s3_compose_correctly" {
     condition     = can(regex("^arn:aws:logs:eu-central-1:.*:/aws/vpc/", output.vpc_flow_log_group_arn))
     error_message = "VPC flow-log group ARN must be in eu-central-1 under /aws/vpc/."
   }
+  assert {
+    condition     = can(regex("^o-", output.organization_id))
+    error_message = "Organization must be created with a valid o- ID."
+  }
+
+  assert {
+    condition     = can(regex("^r-", output.organization_root_id))
+    error_message = "Organization root must have a valid r- ID."
+  }
+
+  assert {
+    condition     = length(output.organization_ou_ids) == 3
+    error_message = "All 3 OUs (Workloads, Security, Sandbox) must be present in the composition."
+  }
 }

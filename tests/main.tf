@@ -84,3 +84,15 @@ output "vpc_id" {
 output "vpc_flow_log_group_arn" {
   value = module.demo.vpc_flow_log_group_arn
 }
+
+output "organization_id" {
+  value = module.demo.organization_id
+}
+
+output "organization_root_id" {
+  value = module.demo.organization_root_id
+}
+
+output "organization_ou_ids" {
+  value = module.demo.organization_ou_ids
+}

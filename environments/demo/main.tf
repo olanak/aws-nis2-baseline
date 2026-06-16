@@ -21,14 +21,15 @@ provider "aws" {
   s3_use_path_style           = true
 
   endpoints {
-    kms        = "http://localhost:4566"
-    sts        = "http://localhost:4566"
-    iam        = "http://localhost:4566"
-    s3         = "http://s3.localhost.localstack.cloud:4566"
-    cloudtrail = "http://localhost:4566"
-    logs       = "http://localhost:4566"
-    config     = "http://localhost:4566"
-    ec2        = "http://localhost:4566"
+    kms           = "http://localhost:4566"
+    sts           = "http://localhost:4566"
+    iam           = "http://localhost:4566"
+    s3            = "http://s3.localhost.localstack.cloud:4566"
+    cloudtrail    = "http://localhost:4566"
+    logs          = "http://localhost:4566"
+    config        = "http://localhost:4566"
+    ec2           = "http://localhost:4566"
+    organizations = "http://localhost:4566"
   }
 }
 
@@ -162,6 +163,31 @@ module "vpc_demo" {
     DataClassification = "internal"
     Purpose            = "network-audit"
   }
+}
+
+module "organizations" {
+  source = "../../modules/organizations"
+
+  organizational_units = ["Workloads", "Security", "Sandbox"]
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "identity-foundation"
+  }
+}
+
+output "organization_id" {
+  value = module.organizations.organization_id
+}
+
+output "organization_root_id" {
+  value = module.organizations.root_id
+}
+
+output "organization_ou_ids" {
+  value = module.organizations.ou_ids
 }
 
 
