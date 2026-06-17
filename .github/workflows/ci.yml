@@ -55,7 +55,7 @@ jobs:
           - modules/organizations
           - modules/scp
           - modules/identity-center
-          - environments/demo
+          - environments/dev
           
           
     steps:
@@ -229,12 +229,12 @@ jobs:
         with:
           api-key: ${{ env.INFRACOST_API_KEY }}
       - name: Baseline cost (main)
-        run: infracost breakdown --path=environments/demo --format=json --out-file=/tmp/baseline.json
+        run: infracost breakdown --path=environments/dev --format=json --out-file=/tmp/baseline.json
       - uses: actions/checkout@v4
         with:
           clean: false
       - name: Diff
-        run: infracost diff --path=environments/demo --compare-to=/tmp/baseline.json --format=json --out-file=/tmp/diff.json
+        run: infracost diff --path=environments/dev --compare-to=/tmp/baseline.json --format=json --out-file=/tmp/diff.json
       - name: Comment on PR
         run: |
           infracost comment github --path=/tmp/diff.json \

@@ -1,3 +1,7 @@
+# Shared composition: wires all baseline modules together.
+# Provider-agnostic on purpose — the calling environment (dev/prod) or the
+# integration test supplies the provider. Never put a provider block here.
+
 terraform {
   required_version = ">= 1.5.0"
 
@@ -6,30 +10,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
-  }
-}
-
-# Provider configured for LocalStack.
-# In production you'd remove the endpoints and skip_* flags.
-provider "aws" {
-  region                      = "eu-central-1"
-  access_key                  = "test"
-  secret_key                  = "test"
-  skip_credentials_validation = true
-  skip_metadata_api_check     = true
-  skip_requesting_account_id  = true
-  s3_use_path_style           = true
-
-  endpoints {
-    kms           = "http://localhost:4566"
-    sts           = "http://localhost:4566"
-    iam           = "http://localhost:4566"
-    s3            = "http://s3.localhost.localstack.cloud:4566"
-    cloudtrail    = "http://localhost:4566"
-    logs          = "http://localhost:4566"
-    config        = "http://localhost:4566"
-    ec2           = "http://localhost:4566"
-    organizations = "http://localhost:4566"
   }
 }
 
@@ -46,10 +26,8 @@ module "kms_s3_baseline" {
   }
 }
 
-
-# Pass CloudTrail-required statements into the s3-baseline module's bucket policy.
-# This is the clean dependency-injection pattern: the bucket module owns its
-# baseline security guarantees; the caller adds what's specific to its use.
+# Dependency-injection: the bucket module owns its baseline guarantees;
+# the caller adds CloudTrail/Config-specific statements.
 locals {
   cloudtrail_bucket_policy_additions = [
     {
@@ -102,8 +80,6 @@ module "s3_baseline_logs" {
   kms_key_arn   = module.kms_s3_baseline.key_arn
   force_destroy = true
 
-  # Additional statements injected for CloudTrail compatibility.
-  # The module's baseline (TLS-only + SSE enforcement) is preserved.
   additional_policy_statements = concat(
     local.cloudtrail_bucket_policy_additions,
     local.config_bucket_policy_additions
@@ -179,8 +155,7 @@ module "organizations" {
 }
 
 module "scp" {
-  source = "../../modules/scp"
-  #target_ids = values(module.organizations.ou_ids)
+  source  = "../../modules/scp"
   targets = module.organizations.ou_ids
 
   tags = {
@@ -191,7 +166,9 @@ module "scp" {
   }
 }
 
-
+# NOTE: identity-center is intentionally NOT wired here — it is plan-mode on
+# LocalStack (ADR-021). It gets added in the prod environment for the Week 6
+# real-AWS run, where the provisioning-status endpoint exists.
 
 output "scp_policy_ids" {
   value = module.scp.policy_ids
@@ -212,7 +189,6 @@ output "organization_root_id" {
 output "organization_ou_ids" {
   value = module.organizations.ou_ids
 }
-
 
 output "vpc_id" {
   value = module.vpc_demo.vpc_id
