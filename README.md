@@ -27,29 +27,28 @@ A Terraform-based AWS landing zone where every module maps to a specific **NIS2 
 | `modules/identity-center` | SSO permission sets (short sessions), group + assignment — plan-mode (see ADR-021) | (i)(j) | A.5.15, A.8.5 |
 
 ## Repository structure
+```text
 aws-nis2-baseline/
-
 ├── modules/                 # Reusable, single-purpose Terraform modules (each with its own tests/)
-
-│   ├── kms · s3-baseline · cloudtrail · aws-config · vpc
-
-│   ├── organizations · scp · identity-center
-
-│   └── detection/           # Week 4 (GuardDuty, Security Hub, EventBridge→SNS)
-
+│   ├── kms/
+│   ├── s3-baseline/
+│   ├── cloudtrail/
+│   ├── aws-config/
+│   ├── vpc/
+│   ├── organizations/
+│   ├── scp/
+│   ├── identity-center/
+│   └── detection/           # Week 4 (GuardDuty, Security Hub, EventBridge → SNS)
 ├── environments/
-
-│   ├── _composition/        # Shared module wiring — provider-agnostic, the single source of "what gets deployed"
-
+│   ├── _composition/        # Shared module wiring — provider-agnostic, single source of "what gets deployed"
 │   ├── dev/                 # Thin wrapper → LocalStack provider + endpoints
-
 │   └── prod/                # Thin wrapper → real AWS provider + remote backend (Week 6)
-
 ├── tests/                   # Root integration test composing the modules together
-
-├── docs/                    # Architecture, NIS2 mapping, ISO crosswalk, learning log (consolidated in Week 5)
-
-└── .github/workflows/       # CI: fmt, validate (per-module matrix), tflint, tfsec, Checkov, terraform test, Infracost
+├── docs/                    # Architecture, NIS2 mapping, ISO crosswalk, learning log (filled in Week 5)
+├── Makefile
+├── docker-compose.yml
+└── .github/workflows/       # CI: fmt, validate matrix, tflint, tfsec, Checkov, terraform test, Infracost
+```
 
 Both `dev` and `prod` are thin wrappers that call the same `_composition`. The module wiring exists once, so the two environments can't drift — the "identical infrastructure on LocalStack and real AWS" guarantee is structural, not maintained by hand.
 
