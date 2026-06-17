@@ -29,6 +29,11 @@ A Terraform-based AWS landing zone where every module maps to a specific **NIS2 
 ## Repository structure
 ```text
 aws-nis2-baseline/
+<<<<<<< HEAD
+```text
+aws-nis2-baseline/
+=======
+>>>>>>> origin/main
 ├── modules/                 # Reusable, single-purpose Terraform modules (each with its own tests/)
 │   ├── kms/
 │   ├── s3-baseline/
