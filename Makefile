@@ -1,12 +1,12 @@
-.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center up down clean-demo
+.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center up down clean-dev
 up:
 	docker compose up -d
 
 down:
 	docker compose down
 
-clean-demo:
-	-cd environments/demo && terraform destroy -auto-approve
+clean-dev:
+	-cd environments/dev && terraform destroy -auto-approve
 
 test-kms:
 	cd modules/kms && terraform test
@@ -29,7 +29,7 @@ test-scp:
 	cd modules/scp && terraform test
 test-identity-center:
 	cd modules/identity-center && terraform test
-test-integration: clean-demo
+test-integration: clean-dev
 	cd tests && terraform init -backend=false && terraform test
 
 
