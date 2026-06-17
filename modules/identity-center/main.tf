@@ -30,6 +30,7 @@ resource "aws_ssoadmin_permission_set" "admin" {
 }
 
 resource "aws_ssoadmin_managed_policy_attachment" "admin" {
+  # checkov:skip=CKV_AWS_274:Intentional break-glass admin permission set. Bounded by PT1H sessions, MFA-enforced SSO, single-group single-account assignment, and org SCPs (deny-root, region-lock, protect-logging). See decision matrix.
   instance_arn       = local.instance_arn
   permission_set_arn = aws_ssoadmin_permission_set.admin.arn
   managed_policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess"
