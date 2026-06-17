@@ -27,9 +27,13 @@ A Terraform-based AWS landing zone where every module maps to a specific **NIS2 
 | `modules/identity-center` | SSO permission sets (short sessions), group + assignment — plan-mode (see ADR-021) | (i)(j) | A.5.15, A.8.5 |
 
 ## Repository structure
-aws-nis2-baseline/
 ```text
 aws-nis2-baseline/
+<<<<<<< HEAD
+```text
+aws-nis2-baseline/
+=======
+>>>>>>> origin/main
 ├── modules/                 # Reusable, single-purpose Terraform modules (each with its own tests/)
 │   ├── kms/
 │   ├── s3-baseline/
