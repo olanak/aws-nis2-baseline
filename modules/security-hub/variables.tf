@@ -10,8 +10,3 @@ variable "enable_guardduty_integration" {
   default     = true
 }
 
-variable "tags" {
-  description = "Tags (Security Hub resources are largely untagged; kept for convention/consistency)."
-  type        = map(string)
-  default     = {}
-}
