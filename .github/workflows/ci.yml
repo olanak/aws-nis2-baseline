@@ -56,6 +56,7 @@ jobs:
           - modules/scp
           - modules/identity-center
           - modules/guardduty
+          - modules/security-hub
           - environments/dev
           
           
@@ -207,7 +208,12 @@ jobs:
         working-directory: modules/guardduty
         run: |
           terraform init
-          terraform test    
+          terraform test
+      - name: Security Hub module tests
+        working-directory: modules/security-hub
+        run: |
+          terraform init
+          terraform test        
       - name: Integration tests
         working-directory: tests
         run: |
