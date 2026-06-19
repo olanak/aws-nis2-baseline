@@ -1,5 +1,3 @@
-cd ~/projects/aws-nis2-baseline
-cat > README.md << 'EOF'
 # Aws-nis2-baseline
 
 [![CI](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml/badge.svg)](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml)
@@ -29,11 +27,6 @@ A Terraform-based AWS landing zone where every module maps to a specific **NIS2 
 ## Repository structure
 ```text
 aws-nis2-baseline/
-<<<<<<< HEAD
-```text
-aws-nis2-baseline/
-=======
->>>>>>> origin/main
 ├── modules/                 # Reusable, single-purpose Terraform modules (each with its own tests/)
 │   ├── kms/
 │   ├── s3-baseline/
