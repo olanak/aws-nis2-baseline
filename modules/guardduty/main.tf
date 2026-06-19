@@ -10,6 +10,7 @@ locals {
 # Threat detection across CloudTrail management events, VPC Flow Logs, and DNS logs.
 # GuardDuty consumes these automatically once enabled — no per-source wiring needed.
 resource "aws_guardduty_detector" "this" {
+  # checkov:skip=CKV2_AWS_3:GuardDuty is enabled here (enable=true). The rule's org-wide enablement (delegated-admin auto-enrollment across member accounts) is deliberately out of scope for this single-account baseline, consistent with ADR-001. Region is supplied by the provider; modules are region-agnostic by design. See decision matrix.
   enable                       = true
   finding_publishing_frequency = var.finding_publishing_frequency
   tags                         = local.base_tags
