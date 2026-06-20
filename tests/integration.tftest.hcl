@@ -1,9 +1,8 @@
-# Integration test: verify KMS + S3 baseline compose correctly.
-# This test ACTUALLY DEPLOYS to LocalStack (apply mode), then asserts on outputs.
-# Integration test: verifies KMS + S3 baseline compose correctly when
-# deployed together via the demo composition.
+# Integration test: verifies the full landing-zone composition (KMS, S3, CloudTrail,
+# Config, VPC, Organizations, SCPs, Alerting) deploys together to LocalStack and
+# composes correctly. Runs in apply mode, then asserts on outputs.
 
-run "kms_and_s3_compose_correctly" {
+run "full_composition_applies_correctly" {
   command = apply
 
   assert {
@@ -71,5 +70,14 @@ run "kms_and_s3_compose_correctly" {
   assert {
     condition     = output.scp_attachment_count == 9
     error_message = "Expected 9 SCP attachments (3 policies x 3 OUs)."
+  }
+  assert {
+    condition     = output.alerting_topic_arn != ""
+    error_message = "Alerting SNS topic must be created in the composition."
+  }
+
+  assert {
+    condition     = can(regex("guardduty", output.alerting_guardduty_rule_arn))
+    error_message = "GuardDuty EventBridge rule must be wired in the composition."
   }
 }

@@ -166,7 +166,20 @@ module "scp" {
   }
 }
 
-# NOTE: identity-center is intentionally NOT wired here — it is plan-mode on
+module "alerting" {
+  source = "../../modules/alerting"
+
+  topic_name = "nis2-demo-security-alerts"
+
+  tags = {
+    Project            = "aws-nis2-baseline"
+    Environment        = "demo"
+    DataClassification = "internal"
+    Purpose            = "detection-alerting"
+  }
+}
+
+# NOTE: identity-center,guardduty & securityhub is intentionally NOT wired here — it is plan-mode on
 # LocalStack (ADR-021). It gets added in the prod environment for the Week 6
 # real-AWS run, where the provisioning-status endpoint exists.
 
@@ -224,4 +237,15 @@ output "logs_bucket_id" {
 
 output "s3_baseline_key_arn" {
   value = module.kms_s3_baseline.key_arn
+}
+output "alerting_topic_arn" {
+  value = module.alerting.topic_arn
+}
+
+output "alerting_guardduty_rule_arn" {
+  value = module.alerting.guardduty_rule_arn
+}
+
+output "alerting_securityhub_rule_arn" {
+  value = module.alerting.securityhub_rule_arn
 }
