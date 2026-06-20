@@ -57,6 +57,7 @@ jobs:
           - modules/identity-center
           - modules/guardduty
           - modules/security-hub
+          - modules/alerting
           - environments/dev
           
           
@@ -213,7 +214,12 @@ jobs:
         working-directory: modules/security-hub
         run: |
           terraform init
-          terraform test        
+          terraform test     
+      - name: alerting module tests
+        working-directory: modules/alerting
+        run: |
+          terraform init
+          terraform test   
       - name: Integration tests
         working-directory: tests
         run: |

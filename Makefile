@@ -1,4 +1,4 @@
-.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center test-guardduty test-security-hub up down clean-dev
+.PHONY: test test-kms test-s3 test-integration test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center test-guardduty test-security-hub test-alerting up down clean-dev
 up:
 	docker compose up -d
 
@@ -33,9 +33,11 @@ test-guardduty:
 	cd modules/guardduty && terraform test
 test-security-hub:
 	cd modules/security-hub && terraform test
+test-alerting:
+	cd modules/alerting && terraform test
 test-integration: clean-dev
 	cd tests && terraform init -backend=false && terraform test
 
 
-test: test-kms test-s3 test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center test-guardduty test-security-hub test-integration
+test: test-kms test-s3 test-cloudtrail test-config test-vpc test-organizations test-scp test-identity-center test-guardduty test-security-hub test-alerting test-integration
 	@echo "✅ All test suites passed."

@@ -32,6 +32,8 @@ provider "aws" {
     config        = "http://localhost:4566"
     ec2           = "http://localhost:4566"
     organizations = "http://localhost:4566"
+    sns           = "http://localhost:4566"
+    events        = "http://localhost:4566"
   }
 }
 
@@ -102,4 +104,11 @@ output "scp_policy_ids" {
 
 output "scp_attachment_count" {
   value = module.composition.scp_attachment_count
+}
+output "alerting_topic_arn" {
+  value = module.composition.alerting_topic_arn
+}
+
+output "alerting_guardduty_rule_arn" {
+  value = module.composition.alerting_guardduty_rule_arn
 }

@@ -31,6 +31,8 @@ provider "aws" {
     config        = "http://localhost:4566"
     ec2           = "http://localhost:4566"
     organizations = "http://localhost:4566"
+    sns           = "http://localhost:4566"
+    events        = "http://localhost:4566"
   }
 }
 
