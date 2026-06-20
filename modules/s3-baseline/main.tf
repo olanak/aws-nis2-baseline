@@ -170,3 +170,11 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
 
   depends_on = [aws_s3_bucket_versioning.this]
 }
+
+# Route bucket events to EventBridge so object activity can reach the
+# centralized detection/alerting layer (closes CKV2_AWS_62). EventBridge
+# is the modern, fan-out-friendly notification target vs per-destination configs.
+resource "aws_s3_bucket_notification" "eventbridge" {
+  bucket      = aws_s3_bucket.this.id
+  eventbridge = true
+}

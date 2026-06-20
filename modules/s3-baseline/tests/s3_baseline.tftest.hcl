@@ -168,3 +168,12 @@ run "rejects_invalid_bucket_name" {
     var.bucket_name
   ]
 }
+
+run "eventbridge_notifications_enabled" {
+  command = apply
+
+  assert {
+    condition     = aws_s3_bucket_notification.eventbridge.eventbridge == true
+    error_message = "Bucket must emit events to EventBridge for centralized alerting."
+  }
+}
