@@ -26,7 +26,7 @@ FSBP is the AWS-native baseline; it overlaps heavily with CIS, so this module su
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~> 5.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.100.0 |
 
 ## Modules
 
