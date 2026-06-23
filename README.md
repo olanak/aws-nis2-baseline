@@ -19,7 +19,7 @@ EU regulated-industry teams (FinTech, consulting, cloud vendors) increasingly ha
 | (a) | Risk analysis & security policies | ✅ | aws-config |
 | (b) | Incident handling | ✅ | cloudtrail, vpc, guardduty, alerting |
 | (c) | Business continuity & backup | ✅ | s3-baseline |
-| (d) | Supply chain security | ◻ planned | documentation (Week 5) |
+| (d) | Supply chain security | ✅ | documentation ([docs/supply-chain.md](docs/supply-chain.md)) |
 | (e) | Acquisition, development, vuln handling | ✅ | security-hub |
 | (f) | Effectiveness assessment | ✅ | cloudtrail, aws-config |
 | (g) | Basic cyber hygiene | ✅ | guardduty, security-hub |
@@ -27,7 +27,7 @@ EU regulated-industry teams (FinTech, consulting, cloud vendors) increasingly ha
 | (i) | Access control & asset management | ✅ | organizations, scp, identity-center |
 | (j) | Multi-factor authentication | ✅ | identity-center |
 
-**9 of 10 measures implemented.** (d) supply-chain security is addressed as documentation/architecture in the consolidation phase rather than as a module.
+**10 of 10 measures addressed** — 9 as deployed Terraform, (d) supply chain as documented architecture/posture ([docs/supply-chain.md](docs/supply-chain.md)).
 
 ## Modules
 
@@ -64,7 +64,7 @@ aws-nis2-baseline/
 │   ├── dev/                    # Thin wrapper → LocalStack provider + endpoints
 │   └── prod/                   # Thin wrapper → real AWS provider + remote backend
 ├── tests/                      # Root integration test — applies the full composition
-├── docs/                       # Architecture, NIS2 mapping, ISO crosswalk
+├── docs/                       # Architecture, NIS2 mapping, ISO crosswalk, supply chain, learning log
 ├── .github/workflows/          # CI: fmt · validate · tflint · tfsec · Checkov · test · Infracost
 ├── Makefile
 └── docker-compose.yml
@@ -78,7 +78,17 @@ KMS is the cryptographic root: its customer-managed key encrypts the S3 log buck
 
 AWS Organizations and SCPs wrap the account in governance guardrails — including one that forbids disabling CloudTrail or Config, so the audit layer can't be silently switched off. The detection layer (GuardDuty + Security Hub) feeds findings into a single KMS-encrypted SNS topic via EventBridge rules, giving one coherent alerting channel instead of per-service notifications.
 
-See [docs/diagrams/architecture.md](docs/diagrams/architecture.md) for the full composition graph.
+See [docs/architecture.md](docs/architecture.md) for the full composition graph, data flows, and environment structure.
+
+## Documentation
+
+| Doc | Covers |
+|---|---|
+| [architecture.md](docs/architecture.md) | Composition, data flows, dev/prod structure |
+| [nis2-control-mapping.md](docs/nis2-control-mapping.md) | Resource → NIS2 measure → ISO control → audit evidence |
+| [iso27001-crosswalk.md](docs/iso27001-crosswalk.md) | NIS2 Article 21 → ISO 27001:2022 Annex A |
+| [supply-chain.md](docs/supply-chain.md) | Supply-chain posture (measure d) |
+| [learning-log.md](docs/learning-log.md) | Curated engineering decisions |
 
 ## Quick start
 
@@ -113,7 +123,7 @@ Scanner findings are not chased to a misleading zero. They are triaged in a docu
 
 ## Status
 
-🟢 **Weeks 1–4 complete** — 11 modules, 9 of 10 NIS2 Article 21(2) measures, shared-composition dev/prod layout, CI green end-to-end. Week 5 consolidates the compliance documentation (NIS2↔ISO crosswalk, supply-chain note); Week 6 is the real-AWS validation run and public release. See the commit history and the build-journal blog series for the week-by-week story.
+🟢 **Build complete** — 11 modules across 4 layers, **10 of 10 NIS2 Article 21(2) measures** addressed (9 as deployed Terraform, 1 as documented architecture), shared-composition dev/prod layout, full documentation set, CI green end-to-end. All development and testing on LocalStack Pro at zero cost. The optional real-AWS validation run (Week 6) confirms the plan-mode modules and IAM/KMS policy chains against an enforcing cloud. See the build-journal blog series for the week-by-week story.
 
 ## License
 
