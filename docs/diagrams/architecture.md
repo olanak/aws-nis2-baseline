@@ -1,6 +1,5 @@
 # Architecture diagrams — aws-nis2-baseline
 
-Raw Mermaid sources for the diagrams embedded in [`../architecture.md`](../architecture.md). Kept here so the diagram code has one home and can be exported (Excalidraw/PNG) later. If you change a diagram, change it here and mirror it into `architecture.md`.
 
 ## Module composition (end of Week 4)
 
