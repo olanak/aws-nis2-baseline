@@ -1,165 +1,238 @@
-# aws-nis2-baseline
+readme = """<div align="center">
 
-[![CI](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml/badge.svg)](https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml)
-[![terraform-docs](https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml/badge.svg)](https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml)
-![Terraform](https://img.shields.io/badge/terraform-%E2%89%A5%201.9-7B42BC?logo=terraform)
-![LocalStack](https://img.shields.io/badge/tested%20on-LocalStack%20Pro-4D29B4)
-![License](https://img.shields.io/badge/license-MIT-green)
+# AWS NIS2 Security Baseline
+---
+**A cloud security and GRC project built with Terraform**
 
-> A modular Terraform AWS landing zone where every control maps to a specific **NIS2 Article 21(2)** measure and **ISO 27001:2022 Annex A** control. Developed and tested at zero cost on LocalStack Pro, with a single real-AWS validation run for final proof.
+<p>
+  <a href="https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml">
+    <img src="https://github.com/olanak/aws-nis2-baseline/actions/workflows/ci.yml/badge.svg" alt="CI">
+  </a>
+  <a href="https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml">
+    <img src="https://github.com/olanak/aws-nis2-baseline/actions/workflows/docs.yml/badge.svg" alt="terraform-docs">
+  </a>
+  <img src="https://img.shields.io/badge/Terraform-%E2%89%A5%201.9-7B42BC?logo=terraform" alt="Terraform">
+  <img src="https://img.shields.io/badge/Tested%20with-LocalStack%20Pro-4D29B4" alt="LocalStack">
+  <img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License">
+</p>
+
+</div>
 
 ---
 
-## Why This Exists
+## About the Project
 
-EU regulated-industry teams — FinTech, consulting, cloud vendors — increasingly need to demonstrate NIS2 conformance in their infrastructure-as-code, not just in policy documents. This project is a working reference: a security baseline where the regulatory requirement, the Terraform that implements it, and the test that proves it all live together and travel together.
+This repository is a **personal portfolio project** focused on exploring how cybersecurity requirements from the **EU NIS2 Directive** can be translated into practical cloud infrastructure controls.
 
-Each module answers one question: *which NIS2 measure does this satisfy, and how would an auditor verify it?*
+The project uses Terraform to build a modular AWS security baseline and maps the implemented controls to **NIS2 Article 21(2)** and relevant **ISO 27001:2022 Annex A** controls.
+
+The main goal was to learn and demonstrate how cloud infrastructure, security engineering, compliance, and Infrastructure as Code can work together in one project.
+
+---
+
+## What I Wanted to Explore
+
+The project was built around a simple question:
+
+**How can regulatory security requirements be represented as actual, testable cloud infrastructure?**
+
+To explore that question, I created reusable Terraform modules for:
+
+- Identity and access management
+- Encryption and key management
+- Logging and auditing
+- Network security
+- Threat detection
+- Security governance
+- Security alerting
+- Configuration monitoring
+- Backup and data protection
+
+Each module is connected to a specific NIS2 measure and, where applicable, an ISO 27001:2022 control.
 
 ---
 
 ## NIS2 Article 21(2) Coverage
 
-| Measure | Topic | Status | Implemented By |
+| Measure | Security Area | Status | Terraform / Documentation |
 |:---|:---|:---:|:---|
-| (a) | Risk analysis & security policies | ✅ | `aws-config` |
+| (a) | Risk analysis and security policies | ✅ | `aws-config` |
 | (b) | Incident handling | ✅ | `cloudtrail`, `vpc`, `guardduty`, `alerting` |
-| (c) | Business continuity & backup | ✅ | `s3-baseline` |
-| (d) | Supply chain security | ✅ | Documentation ([`docs/supply-chain.md`](docs/supply-chain.md)) |
-| (e) | Acquisition, development & vulnerability handling | ✅ | `security-hub` |
+| (c) | Business continuity and backup | ✅ | `s3-baseline` |
+| (d) | Supply chain security | ✅ | `docs/supply-chain.md` |
+| (e) | Acquisition, development and vulnerability handling | ✅ | `security-hub` |
 | (f) | Effectiveness assessment | ✅ | `cloudtrail`, `aws-config` |
 | (g) | Basic cyber hygiene | ✅ | `guardduty`, `security-hub` |
-| (h) | Cryptography & encryption | ✅ | `kms`, `s3-baseline` |
-| (i) | Access control & asset management | ✅ | `organizations`, `scp`, `identity-center` |
+| (h) | Cryptography and encryption | ✅ | `kms`, `s3-baseline` |
+| (i) | Access control and asset management | ✅ | `organizations`, `scp`, `identity-center` |
 | (j) | Multi-factor authentication | ✅ | `identity-center` |
 
-**10 of 10 measures addressed** — 9 as deployed Terraform, (d) supply chain as documented architecture/posture.
+**10 of 10 NIS2 Article 21(2) measures are addressed** within the scope of this project implementation.
 
 ---
+## Architecture
 
-## Modules
+<div align="center">
+
+**AWS Security Baseline**
+
+![Project architecture](assets/aws.png)
+
+---
+The architecture is organized into four main areas:
+
+### Foundation
+KMS and the secure S3 baseline provide encryption and protected log storage.
+
+### Logging and monitoring
+CloudTrail, AWS Config and VPC Flow Logs provide visibility and audit information.
+
+### Identity and governance
+AWS Organizations, SCPs and IAM Identity Center provide account-level guardrails and access controls.
+
+### Detection and alerting
+GuardDuty and Security Hub provide security findings, while EventBridge and SNS provide a centralized notification path.
+---
+## Terraform Modules
 
 | Module | Purpose | Mode | NIS2 | ISO 27001:2022 |
-|:---|:---|:---:|:---:|:---:|
-| `kms` | Customer-managed CMK, rotation, alias | apply | (h) | A.8.24 |
-| `s3-baseline` | Secure-by-default bucket (SSE-KMS, TLS-only, versioned, EventBridge) + policy-injection hook | apply | (c)(h) | A.8.13, A.8.24 |
-| `cloudtrail` | Multi-region trail, log-file validation, KMS-encrypted, 365-day retention | apply | (b)(f) | A.8.15, A.8.34 |
-| `aws-config` | Recorder + delivery channel + 6 NIS2-aligned managed rules | apply | (a)(f) | A.8.9 |
-| `vpc` | Two-AZ VPC, public/private subnets, NAT, VPC Flow Logs | apply | (b) | A.8.16, A.8.22 |
-| `organizations` | AWS Organization, feature-set ALL, 3 OUs | apply | (i) | A.5.15 |
-| `scp` | 3 Service Control Policies (deny-root, region-lock, protect-logging) × 3 OUs | apply | (i) | A.5.15, A.8.22 |
-| `identity-center` | SSO permission sets (short sessions), group + assignment | plan¹ | (i)(j) | A.5.15, A.8.5 |
-| `guardduty` | Threat-detection detector + S3/malware features | plan² | (b)(g) | A.8.16, A.5.7 |
-| `security-hub` | Security Hub + AWS FSBP standard + GuardDuty integration | plan² | (e)(g) | A.8.8, A.5.36 |
-| `alerting` | KMS-encrypted SNS topic + EventBridge rules → centralized findings channel | apply | (b) | A.5.24–A.5.26 |
-
-> **¹ plan-mode:** LocalStack emulates SSO creation but not the provisioning-status endpoint the provider polls after a managed-policy attachment ([ADR-021](docs/learning-log.md)).  
-> **² plan-mode:** LocalStack does not implement GuardDuty or Security Hub at all ([ADR-022](docs/learning-log.md)).  
-> 
-> Plan-mode modules are correct, validated Terraform; their `apply` is proven on real AWS in the Week 6 validation run rather than against the emulator.
-
+|---|---|---|---|---|
+| **kms** | Customer-managed key, rotation and alias | apply | (h) | A.8.24 |
+| **s3-baseline** | Secure bucket with SSE-KMS, TLS-only access and versioning | apply | (c)(h) | A.8.13, A.8.24 |
+| **cloudtrail** | Multi-region audit trail with validation and encryption | apply | (b)(f) | A.8.15, A.8.34 |
+| **aws-config** | Configuration recorder and NIS2-aligned rules | apply | (a)(f) | A.8.9 |
+| **vpc** | Two-AZ network with public/private subnets and flow logs | apply | (b) | A.8.16, A.8.22 |
+| **organizations** | AWS Organization and organizational units | apply | (i) | A.5.15 |
+| **scp** | Governance policies for root access, regions and logging | apply | (i) | A.5.15, A.8.22 |
+| **identity-center** | SSO permission sets, groups and assignments | plan¹ | (i)(j) | A.5.15, A.8.5 |
+| **guardduty** | Threat detection and S3 malware protection features | plan² | (b)(g) | A.8.16, A.5.7 |
+| **security-hub** | Security Hub with AWS FSBP and GuardDuty integration | plan² | (e)(g) | A.8.8, A.5.36 |
+| **alerting** | KMS-encrypted SNS and EventBridge security alerts | apply | (b) | A.5.24–A.5.26 |
 ---
+### LocalStack limitations
+Some AWS services are not fully represented by LocalStack, so the project separates apply-mode and plan-mode validation.
 
+* **¹ IAM Identity Center:** LocalStack can emulate parts of SSO creation but does not provide the complete provisioning-status behavior expected by the Terraform provider.
+* **² GuardDuty and Security Hub:** These services are not implemented by LocalStack.
+
+These limitations are documented in the project's learning log and ADRs rather than being hidden.
+---
 ## Repository Structure
-
-```
+```text
 aws-nis2-baseline/
-├── modules/                    # Reusable, single-purpose modules — each with its own tests/
-│   ├── kms/ · s3-baseline/                       # Foundation
-│   ├── cloudtrail/ · aws-config/ · vpc/          # Logging & audit
-│   ├── organizations/ · scp/ · identity-center/  # Identity & governance
-│   └── guardduty/ · security-hub/ · alerting/    # Detection & alerting
+│
+├── modules/
+│   ├── kms/
+│   ├── s3-baseline/
+│   ├── cloudtrail/
+│   ├── aws-config/
+│   ├── vpc/
+│   ├── organizations/
+│   ├── scp/
+│   ├── identity-center/
+│   ├── guardduty/
+│   ├── security-hub/
+│   └── alerting/
+│
 ├── environments/
-│   ├── _composition/           # Shared module wiring — provider-agnostic, the single
-│   │                           #   source of truth for "what gets deployed"
-│   ├── dev/                    # Thin wrapper → LocalStack provider + endpoints
-│   └── prod/                   # Thin wrapper → real AWS provider + remote backend
-├── tests/                      # Root integration test — applies the full composition
-├── docs/                       # Architecture, NIS2 mapping, ISO crosswalk, supply chain, learning log
-├── .github/workflows/          # CI: fmt · validate · tflint · tfsec · Checkov · test · Infracost
+│   ├── _composition/
+│   ├── dev/
+│   └── prod/
+│
+├── tests/
+├── docs/
+├── .github/workflows/
 ├── Makefile
 └── docker-compose.yml
 ```
 
-`dev` and `prod` are thin wrappers over the same `_composition`. The module wiring exists exactly once, so the environments cannot drift — the "identical infrastructure on LocalStack and real AWS" guarantee is structural, not maintained by hand.
-
+The `dev` and `prod` environments use the same shared module composition. This keeps the infrastructure definition in one place while allowing the provider configuration to differ between LocalStack and AWS.
 ---
+## Testing
+Testing is an important part of the project. The repository uses:
+* `terraform test`
+* Terraform validation
+* `terraform fmt`
+* `tflint`
+* `tfsec`
+* Checkov
+* Infracost
+* `terraform-docs`
+* LocalStack-based integration testing
 
-## Architecture
-
-**KMS** is the cryptographic root: its customer-managed key encrypts the S3 log bucket, CloudTrail, and the VPC flow logs.
-
-The **S3 baseline bucket** is the shared log sink — CloudTrail and AWS Config both deliver to it, with their delivery permissions injected through the bucket module's `additional_policy_statements` hook so the baseline guarantees (TLS-only, SSE-KMS-required) can be extended but never overridden.
-
-**AWS Organizations and SCPs** wrap the account in governance guardrails — including one that forbids disabling CloudTrail or Config, so the audit layer can't be silently switched off.
-
-The **detection layer** (GuardDuty + Security Hub) feeds findings into a single KMS-encrypted SNS topic via EventBridge rules, giving one coherent alerting channel instead of per-service notifications.
-
-See [`docs/architecture.md`](docs/architecture.md) for the full composition graph, data flows, and environment structure.
-
+Each module includes tests for expected security defaults and important configuration behavior. Where LocalStack cannot provide full service behavior, the project uses plan-based validation and documents the limitation.
 ---
+## CI and Automation
+GitHub Actions is used to automate the development workflow. The CI pipeline checks formatting, validates Terraform configuration, runs security scanners, generates documentation and executes the Terraform test suite.
 
-## Documentation
+The purpose of the pipeline is not simply to make the checks pass. It is also to make security decisions visible and repeatable. Scanner findings can be classified as:
+* Fixed
+* Deferred
+* Accepted
+* Suppressed with reason
 
-| Document | Covers |
-|:---|:---|
-| [`architecture.md`](docs/architecture.md) | Composition, data flows, dev/prod structure |
-| [`nis2-control-mapping.md`](docs/nis2-control-mapping.md) | Resource → NIS2 measure → ISO control → audit evidence |
-| [`iso27001-crosswalk.md`](docs/iso27001-crosswalk.md) | NIS2 Article 21 → ISO 27001:2022 Annex A |
-| [`supply-chain.md`](docs/supply-chain.md) | Supply-chain posture (measure d) |
-| [`learning-log.md`](docs/learning-log.md) | Curated engineering decisions |
-
+This provides a small example of how technical security work can connect with GRC practices.
 ---
+## Development Approach
+This project was developed as a hands-on learning exercise around:
+**Cloud Security → Infrastructure as Code → Compliance Mapping → Security Testing**
 
+A few principles guided the implementation:
+
+| Principle | Approach |
+|---|---|
+| **Reusable Terraform** | Security controls are separated into focused modules |
+| **Security by default** | Encryption, logging and restrictive policies are built into the baseline |
+| **Compliance mapping** | Terraform resources are linked to NIS2 and ISO 27001 controls |
+| **Testable infrastructure** | Security assumptions are checked through Terraform tests |
+| **Transparent limitations** | Emulator limitations are documented instead of hidden |
+| **Automation** | CI runs validation, security checks and tests |
+---
 ## Quick Start
+### Requirements
+* Terraform >= 1.9
+* Docker
+* LocalStack Pro
+* A LocalStack authentication token
 
+### Start LocalStack
 ```bash
-# Requires Docker + a LocalStack Pro auth token in LOCALSTACK_AUTH_TOKEN
-make up                          # start LocalStack Pro
-cd environments/dev
-terraform init
-terraform apply -auto-approve    # deploy the apply-mode composition to LocalStack
-cd ../..
-make test                        # all module test suites + the integration test
+make up
 ```
 
+### Deploy the development environment
+```bash
+cd environments/dev
+terraform init
+terraform apply -auto-approve
+```
+
+### Run tests
+```bash
+cd ../..
+make test
+```
+---
+## Documentation
+
+| Document | Description |
+|---|---|
+| `architecture.md` | Architecture, composition and data flows |
+| `nis2-control-mapping.md` | Resource to NIS2 measure and audit evidence mapping |
+| `iso27001-crosswalk.md` | NIS2 Article 21 to ISO 27001:2022 Annex A mapping |
+| `supply-chain.md` | Supply-chain security considerations |
+| `learning-log.md` | Engineering decisions and lessons learned |
 ---
 
-## Testing & Validation
+## Project Status
+**Complete implementation**
 
-- **Native `terraform test`** — every module has its own suite (positive defaults, security-critical assertions, and a negative `expect_failures` case); a root integration test applies the full multi-module composition and asserts on its outputs.
-
-- **Apply-mode vs plan-mode** — modules LocalStack fully supports are applied and asserted for real; modules it doesn't (SSO provisioning-status, GuardDuty, Security Hub) are validated by `terraform validate` + plan-mode tests and proven on real AWS in Week 6. Which is which, and why, is documented in the ADRs — distinguishing "the code is wrong" from "the emulator doesn't implement this" is treated as part of the work.
-
-- **One paid validation run** — a single real-AWS deploy (under €15, budget-controlled, destroyed immediately) closes the "did it ever run on real AWS?" question for the plan-mode modules and the IAM/KMS policy chains LocalStack can't enforce.
-
+The current version contains 11 Terraform modules, covers 10 NIS2 Article 21(2) measures, includes automated testing and CI checks, and documents the architectural and compliance decisions made during development.
 ---
+<br>
+<div align="center">
+  <strong>Author</strong><br>
+  Olana Kenea<br>
 
-## CI & Engineering Hygiene
+</div>
 
-Every pull request runs `terraform fmt`, `tflint`, `tfsec`, `Checkov`, `Infracost`, `terraform-docs`, and the full `terraform test` suite against a LocalStack Pro service container, behind branch protection on `main`.
-
-Scanner findings are not chased to a misleading zero. They are triaged in a documented decision matrix — **Fixed / Deferred / Accepted / Suppressed-with-reason** — that lives alongside the code, so a reviewer can see what was flagged, what was decided, and why. Managing risk transparently is itself the GRC signal a regulated-industry reviewer is looking for.
-
----
-
-## Development Model
-
-| Principle | Implementation |
-|:---|:---|
-| **LocalStack Pro** (Student plan) | All development and CI — full service parity, zero cloud spend. |
-| **Provider-agnostic modules + composition** | LocalStack vs AWS isolated to thin environment wrappers. |
-| **Plan-mode honesty** | Emulator gaps documented as ADRs (021, 022), not hidden behind feature flags. |
-| **Real-AWS validation** | Single Week 6 run with budget alarms and immediate teardown. |
-
----
-
-## Status
-
-🟢 **Build complete** — 11 modules across 4 layers, **10 of 10 NIS2 Article 21(2) measures** addressed (9 as deployed Terraform, 1 as documented architecture), shared-composition dev/prod layout, full documentation set, CI green end-to-end. All development and testing on LocalStack Pro at zero cost. The optional real-AWS validation run (Week 6) confirms the plan-mode modules and IAM/KMS policy chains against an enforcing cloud. See the build-journal blog series for the week-by-week story.
-
----
-
-## License
-
-MIT — see [`LICENSE`](LICENSE).
