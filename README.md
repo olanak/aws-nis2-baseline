@@ -122,7 +122,8 @@ Some AWS services are not fully represented by LocalStack, so the project separa
 * **¹ IAM Identity Center:** LocalStack can emulate parts of SSO creation but does not provide the complete provisioning-status behavior expected by the Terraform provider.
 * **² GuardDuty and Security Hub:** These services are not implemented by LocalStack.
 
-These limitations are documented in the project's learning log and ADRs rather than being hidden.
+These limitations are documented in the project's learning log and ADRs.
+
 ---
 ## Repository Structure
 
@@ -182,6 +183,7 @@ The purpose of the pipeline is not simply to make the checks pass. It is also to
 * Suppressed with reason
 
 This provides a small example of how technical security work can connect with GRC practices.
+
 ---
 
 ## Development Approach
@@ -190,7 +192,6 @@ This project was developed as a hands-on learning exercise around:
 
 A few principles guided the implementation:
 
-<div align="center">
 | Principle | Approach |
 |---|---|
 | **Reusable Terraform** | Security controls are separated into focused modules |
@@ -200,8 +201,8 @@ A few principles guided the implementation:
 | **Transparent limitations** | Emulator limitations are documented instead of hidden |
 | **Automation** | CI runs validation, security checks and tests |
 
-</div>
 ---
+
 ## Quick Start
 ### Requirements
 * Terraform >= 1.9
@@ -227,8 +228,9 @@ cd ../..
 make test
 ```
 ---
+
 ## Documentation
-<div align="center">
+
 | Document | Description |
 |---|---|
 | `architecture.md` | Architecture, composition and data flows |
@@ -236,7 +238,7 @@ make test
 | `iso27001-crosswalk.md` | NIS2 Article 21 to ISO 27001:2022 Annex A mapping |
 | `supply-chain.md` | Supply-chain security considerations |
 | `learning-log.md` | Engineering decisions and lessons learned |
-</div>
+
 
 ---
 
@@ -244,7 +246,9 @@ make test
 **Complete implementation**
 
 The current version contains 11 Terraform modules, covers 10 NIS2 Article 21(2) measures, includes automated testing and CI checks, and documents the architectural and compliance decisions made during development.
+
 ---
+
 <br>
 <div align="center">
   <strong>Author</strong><br>
