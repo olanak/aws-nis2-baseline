@@ -1,4 +1,4 @@
-readme = """<div align="center">
+<div align="center">
 
 # AWS NIS2 Security Baseline
 ---
@@ -78,6 +78,8 @@ Each module is connected to a specific NIS2 measure and, where applicable, an IS
 
 ![Project architecture](assets/aws.png)
 
+</div>
+
 ---
 The architecture is organized into four main areas:
 
@@ -92,8 +94,10 @@ AWS Organizations, SCPs and IAM Identity Center provide account-level guardrails
 
 ### Detection and alerting
 GuardDuty and Security Hub provide security findings, while EventBridge and SNS provide a centralized notification path.
+
 ---
 ## Terraform Modules
+<div align="center">
 
 | Module | Purpose | Mode | NIS2 | ISO 27001:2022 |
 |---|---|---|---|---|
@@ -108,7 +112,10 @@ GuardDuty and Security Hub provide security findings, while EventBridge and SNS 
 | **guardduty** | Threat detection and S3 malware protection features | plan² | (b)(g) | A.8.16, A.5.7 |
 | **security-hub** | Security Hub with AWS FSBP and GuardDuty integration | plan² | (e)(g) | A.8.8, A.5.36 |
 | **alerting** | KMS-encrypted SNS and EventBridge security alerts | apply | (b) | A.5.24–A.5.26 |
+</div>
+
 ---
+
 ### LocalStack limitations
 Some AWS services are not fully represented by LocalStack, so the project separates apply-mode and plan-mode validation.
 
@@ -118,7 +125,8 @@ Some AWS services are not fully represented by LocalStack, so the project separa
 These limitations are documented in the project's learning log and ADRs rather than being hidden.
 ---
 ## Repository Structure
-```text
+
+```
 aws-nis2-baseline/
 │
 ├── modules/
@@ -147,6 +155,7 @@ aws-nis2-baseline/
 ```
 
 The `dev` and `prod` environments use the same shared module composition. This keeps the infrastructure definition in one place while allowing the provider configuration to differ between LocalStack and AWS.
+
 ---
 ## Testing
 Testing is an important part of the project. The repository uses:
@@ -161,6 +170,7 @@ Testing is an important part of the project. The repository uses:
 * LocalStack-based integration testing
 
 Each module includes tests for expected security defaults and important configuration behavior. Where LocalStack cannot provide full service behavior, the project uses plan-based validation and documents the limitation.
+
 ---
 ## CI and Automation
 GitHub Actions is used to automate the development workflow. The CI pipeline checks formatting, validates Terraform configuration, runs security scanners, generates documentation and executes the Terraform test suite.
@@ -173,12 +183,14 @@ The purpose of the pipeline is not simply to make the checks pass. It is also to
 
 This provides a small example of how technical security work can connect with GRC practices.
 ---
+
 ## Development Approach
 This project was developed as a hands-on learning exercise around:
 **Cloud Security → Infrastructure as Code → Compliance Mapping → Security Testing**
 
 A few principles guided the implementation:
 
+<div align="center">
 | Principle | Approach |
 |---|---|
 | **Reusable Terraform** | Security controls are separated into focused modules |
@@ -187,6 +199,8 @@ A few principles guided the implementation:
 | **Testable infrastructure** | Security assumptions are checked through Terraform tests |
 | **Transparent limitations** | Emulator limitations are documented instead of hidden |
 | **Automation** | CI runs validation, security checks and tests |
+
+</div>
 ---
 ## Quick Start
 ### Requirements
@@ -214,7 +228,7 @@ make test
 ```
 ---
 ## Documentation
-
+<div align="center">
 | Document | Description |
 |---|---|
 | `architecture.md` | Architecture, composition and data flows |
@@ -222,6 +236,8 @@ make test
 | `iso27001-crosswalk.md` | NIS2 Article 21 to ISO 27001:2022 Annex A mapping |
 | `supply-chain.md` | Supply-chain security considerations |
 | `learning-log.md` | Engineering decisions and lessons learned |
+</div>
+
 ---
 
 ## Project Status
